@@ -1,0 +1,372 @@
+import { useState, useEffect, useCallback } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import { SettingsProvider } from "./contexts/SettingsContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { NotesList } from "./components/NotesList";
+import { NoteEditor } from "./components/NoteEditor";
+import LoginScreen from "./components/LoginScreen";
+import { useNotes } from "./hooks/useNotes";
+import { useAuth } from "./hooks/useAuth";
+import { Note } from "./types/Note";
+import SettingsPage from "./pages/SettingsPage";
+
+function RequireAuth({ user, children }: { user: any; children: JSX.Element }) {
+  const location = useLocation();
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  return children;
+}
+
+function App() {
+  const {
+    notes,
+    folders,
+    selectedNote,
+    selectedFolderId,
+    setSelectedNote,
+    setSelectedFolderId,
+    createNote,
+    updateNote,
+    deleteNote,
+    createFolder,
+    updateFolder,
+    deleteFolder,
+    toggleFolder,
+  } = useNotes();
+
+  const { user, loading } = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentSearchTerm, setCurrentSearchTerm] = useState<
+    string | undefined
+  >(undefined);
+
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const saved = localStorage.getItem("sidebarWidth");
+    return saved ? parseInt(saved, 10) : 320;
+  });
+  const [isResizing, setIsResizing] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(() => {
+    const saved = localStorage.getItem("sidebarVisible");
+    return saved !== null ? saved === "true" : true;
+  });
+
+  // Save sidebar width to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("sidebarWidth", sidebarWidth.toString());
+  }, [sidebarWidth]);
+
+  // Save sidebar visibility to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("sidebarVisible", isSidebarVisible.toString());
+  }, [isSidebarVisible]);
+
+  // Handle mouse events for resizing
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const newWidth = e.clientX;
+      const minWidth = 200;
+      const maxWidth = 600;
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        setSidebarWidth(newWidth);
+      }
+    },
+    [isResizing]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+    } else {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
+
+  // Handle keyboard shortcut for toggling sidebar (Ctrl/Cmd + Shift + B)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        (e.key === "B" || e.key === "b")
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsSidebarVisible((prev) => !prev);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown, true); // Use capture phase
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, []);
+
+  // Electron integration
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.electronAPI) {
+      // Handle menu events from Electron
+      window.electronAPI.onMenuNewNote(() => {
+        handleCreateNote(selectedFolderId);
+      });
+
+      window.electronAPI.onMenuSave(() => {
+        // Save current note if any
+        if (selectedNote) {
+          updateNote(selectedNote);
+        }
+      });
+
+      window.electronAPI.onMenuNewFolder(() => {
+        // Create folder with default name
+        const defaultName = `New Folder ${folders.length + 1}`;
+        createFolder(defaultName, selectedFolderId);
+      });
+
+      window.electronAPI.onMenuExportPDF(() => {
+        // Trigger PDF export for current note
+        if (selectedNote) {
+          // Import the export function and use it directly
+          import("./utils/exportUtils").then(({ exportToPDF }) => {
+            exportToPDF(selectedNote);
+          });
+        }
+      });
+
+      window.electronAPI.onMenuExportTXT(() => {
+        // Trigger TXT export for current note
+        if (selectedNote) {
+          // Import the export function and use it directly
+          import("./utils/exportUtils").then(({ exportToTXT }) => {
+            exportToTXT(selectedNote);
+          });
+        }
+      });
+
+      // Cleanup listeners on unmount
+      return () => {
+        if (window.electronAPI) {
+          window.electronAPI.removeAllListeners("menu-new-note");
+          window.electronAPI.removeAllListeners("menu-save");
+          window.electronAPI.removeAllListeners("menu-new-folder");
+          window.electronAPI.removeAllListeners("menu-export-pdf");
+          window.electronAPI.removeAllListeners("menu-export-txt");
+        }
+      };
+    }
+  }, [selectedNote, selectedFolderId, updateNote, createNote]);
+
+  const handleCreateNote = (folderId: string | null = null) => {
+    createNote(folderId);
+  };
+
+  const handleSelectFolder = (folderId: string | null) => {
+    setSelectedFolderId(folderId);
+    // Clear note selection when switching folders
+    setSelectedNote(null);
+    setCurrentSearchTerm(undefined);
+  };
+
+  const handleSelectNote = (note: Note) => {
+    setSelectedNote(note);
+    // If there's an active search query, use it for highlighting in the editor
+    if (searchQuery.trim()) {
+      setCurrentSearchTerm(searchQuery.trim());
+      // Clear the search term after highlighting
+      setTimeout(() => setCurrentSearchTerm(undefined), 3000);
+    } else {
+      setCurrentSearchTerm(undefined);
+    }
+  };
+
+  // Handle navigation to text from search references
+  const handleNavigateToText = (note: Note, searchTerm: string) => {
+    setSelectedNote(note);
+    if (searchTerm.trim()) {
+      setCurrentSearchTerm(searchTerm.trim());
+      // Clear the search term after a short delay to allow highlighting
+      setTimeout(() => setCurrentSearchTerm(undefined), 3000);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div
+        className="flex items-center justify-center h-screen"
+        style={{ backgroundColor: "var(--bg-primary)" }}
+      >
+        <div className="text-center">
+          {/* Animated logo/icon */}
+          <div
+            className="w-16 h-16 mx-auto mb-6 rounded-xl flex items-center justify-center animate-pulse"
+            style={{ backgroundColor: "var(--accent)" }}
+          >
+            <svg
+              className="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+          </div>
+
+          {/* Loading text */}
+          <h2
+            className="text-xl font-semibold mb-2"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Loading Notes
+          </h2>
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            Authenticating and setting up your workspace...
+          </p>
+
+          {/* Loading animation */}
+          <div className="flex justify-center mt-4">
+            <div className="flex space-x-1">
+              <div
+                className="w-2 h-2 rounded-full animate-bounce"
+                style={{
+                  backgroundColor: "var(--accent)",
+                  animationDelay: "0ms",
+                }}
+              ></div>
+              <div
+                className="w-2 h-2 rounded-full animate-bounce"
+                style={{
+                  backgroundColor: "var(--accent)",
+                  animationDelay: "150ms",
+                }}
+              ></div>
+              <div
+                className="w-2 h-2 rounded-full animate-bounce"
+                style={{
+                  backgroundColor: "var(--accent)",
+                  animationDelay: "300ms",
+                }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <ThemeProvider>
+      <SettingsProvider>
+        <Router>
+          <Routes>
+            <Route
+              path="/login"
+              element={user ? <Navigate to="/" replace /> : <LoginScreen />}
+            />
+            <Route
+              path="/"
+              element={
+                <RequireAuth user={user}>
+                  <div className="h-screen bg-gray-100 dark:bg-black flex overflow-hidden">
+                    <div className="flex flex-col w-full relative">
+                      <div className="flex flex-1 h-full">
+                        {/* Resizable sidebar */}
+                        {isSidebarVisible && (
+                          <>
+                            <div
+                              className="bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-700 flex flex-col h-full relative"
+                              style={{ width: `${sidebarWidth}px` }}
+                            >
+                              <NotesList
+                                notes={notes}
+                                folders={folders}
+                                selectedNote={selectedNote}
+                                selectedFolderId={selectedFolderId}
+                                onSelectNote={handleSelectNote}
+                                onSelectFolder={handleSelectFolder}
+                                onCreateNote={handleCreateNote}
+                                onCreateFolder={createFolder}
+                                onUpdateFolder={updateFolder}
+                                onDeleteFolder={deleteFolder}
+                                onToggleFolder={toggleFolder}
+                                onDeleteNote={deleteNote}
+                                searchQuery={searchQuery}
+                                onSearchChange={setSearchQuery}
+                                selectedCategory={selectedCategory}
+                                onCategoryChange={setSelectedCategory}
+                                onNavigateToText={handleNavigateToText}
+                              />
+                            </div>
+
+                            {/* Resize handle */}
+                            <div
+                              className="w-1 bg-gray-200 dark:bg-zinc-700 hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-colors duration-200 relative"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setIsResizing(true);
+                              }}
+                            >
+                              <div className="absolute inset-0 hover:bg-blue-500 dark:hover:bg-blue-400 opacity-0 hover:opacity-50 transition-opacity duration-200" />
+                            </div>
+                          </>
+                        )}
+
+                        {/* Main content area */}
+                        <div className="flex-1 h-full overflow-auto">
+                          <NoteEditor
+                            note={selectedNote}
+                            onSave={updateNote}
+                            searchTerm={currentSearchTerm}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <RequireAuth user={user}>
+                  <SettingsPage />
+                </RequireAuth>
+              }
+            />
+          </Routes>
+        </Router>
+      </SettingsProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;
