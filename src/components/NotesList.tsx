@@ -217,19 +217,13 @@ export const NotesList: React.FC<NotesListProps> = ({
     <>
       <div
         className="w-full h-full flex flex-col notes-list-container"
-        style={{ backgroundColor: "var(--bg-card)" }}
+        style={{ background: "transparent" }}
       >
-        {/* Header Section with Enhanced Styling */}
-        <div
-          className="p-2 border-b shadow-sm"
-          style={{
-            backgroundColor: "var(--bg-card)",
-            borderColor: "var(--border)",
-          }}
-        >
-          <div className="flex items-center justify-between mb-2">
+        {/* Header Section with Liquid Glass Toolbar Effect */}
+        <div className="p-4 fade-in material-toolbar">
+          <div className="flex items-center justify-between mb-4">
             <h1
-              className="text-lg font-semibold"
+              className="text-2xl font-bold"
               style={{ color: "var(--text-primary)" }}
             >
               Notes
@@ -237,33 +231,32 @@ export const NotesList: React.FC<NotesListProps> = ({
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => onCreateNote(selectedFolderId)}
-                className="group p-2 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="modern-btn group p-2.5 text-white shadow-md hover:shadow-lg"
                 style={{ backgroundColor: "var(--accent)" }}
                 title="New Note"
               >
                 <FilePlus
                   size={18}
-                  className="group-hover:scale-110 transition-transform duration-200"
+                  className="group-hover:rotate-12 transition-transform duration-200"
                 />
               </button>
               <button
                 onClick={handleCreateFolder}
-                className="group p-2 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="modern-btn group p-2.5 text-white shadow-md hover:shadow-lg"
                 style={{
-                  backgroundColor: "var(--accent)",
-                  filter: "hue-rotate(45deg)",
+                  backgroundColor: "var(--success)",
                 }}
                 title="New Folder"
               >
                 <FolderPlus
                   size={18}
-                  className="group-hover:scale-110 transition-transform duration-200"
+                  className="group-hover:rotate-12 transition-transform duration-200"
                 />
               </button>
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="group p-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                  className="modern-btn group p-2.5 shadow-sm hover:shadow-md"
                   style={{
                     backgroundColor: "var(--input-bg)",
                     color: "var(--text-secondary)",
@@ -272,7 +265,7 @@ export const NotesList: React.FC<NotesListProps> = ({
                 >
                   <MoreHorizontal
                     size={18}
-                    className="group-hover:scale-110 transition-transform duration-200"
+                    className="group-hover:rotate-90 transition-transform duration-300"
                   />
                 </button>
                 {showMenu && (
@@ -282,10 +275,11 @@ export const NotesList: React.FC<NotesListProps> = ({
                       onClick={() => setShowMenu(false)}
                     />
                     <div
-                      className="absolute left-2 right-0 top-full mt-2 z-50 border rounded-2xl shadow-2xl py-2 min-w-48 backdrop-blur-sm"
+                      className="absolute left-2 right-0 top-full mt-2 z-50 rounded-2xl shadow-2xl py-2 min-w-48 backdrop-blur-sm fade-in"
                       style={{
                         backgroundColor: "var(--bg-card)",
-                        borderColor: "var(--border)",
+                        border: "1px solid var(--border)",
+                        boxShadow: "0 20px 40px var(--shadow-lg)",
                       }}
                     >
                       <button
@@ -350,7 +344,7 @@ export const NotesList: React.FC<NotesListProps> = ({
               placeholder="Search notes..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-12 py-2 border rounded-2xl focus:ring-2 focus:border-transparent transition-all duration-300 shadow-sm focus:shadow-lg focus:ring-accent"
+              className="modern-input w-full pl-12 py-3 shadow-sm focus:shadow-lg"
               style={{
                 backgroundColor: "var(--input-bg)",
                 borderColor: "var(--border)",
@@ -365,14 +359,17 @@ export const NotesList: React.FC<NotesListProps> = ({
               <button
                 key={category}
                 onClick={() => onCategoryChange(category)}
-                className={`px-4 py-1 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap shadow-sm hover:shadow-md  ${
+                className={`modern-btn px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
                   selectedCategory === category
-                    ? "text-white shadow-lg"
-                    : "hover:bg-selected border"
+                    ? "text-white shadow-md scale-105"
+                    : "hover:scale-105 border"
                 }`}
                 style={
                   selectedCategory === category
-                    ? { backgroundColor: "var(--accent)" }
+                    ? {
+                        backgroundColor: "var(--accent)",
+                        boxShadow: "0 4px 12px var(--shadow-md)",
+                      }
                     : {
                         backgroundColor: "var(--bg-card)",
                         color: "var(--text-primary)",
@@ -477,24 +474,23 @@ export const NotesList: React.FC<NotesListProps> = ({
           </div>
         )}
 
-        {/* Enhanced Settings Button */}
-        <div
-          className="mt-auto p-6"
-          style={{
-            backgroundColor: "var(--bg-card)",
-          }}
-        >
+        {/* Enhanced Settings Button with Liquid Glass */}
+        <div className="mt-auto p-4 fade-in material-toolbar">
           <button
             onClick={() => navigate("/settings")}
-            className="w-full flex items-center justify-center space-x-3 p-4 text-white rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 group"
-            style={{ backgroundColor: "var(--accent)" }}
+            className="modern-btn w-full flex items-center justify-center space-x-3 p-4 text-white shadow-md hover:shadow-xl group"
+            style={{
+              backgroundColor: "var(--accent)",
+              backgroundImage:
+                "linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%)",
+            }}
             title="Settings"
           >
             <Settings
-              size={18}
-              className="group-hover:rotate-90 transition-transform duration-300"
+              size={20}
+              className="group-hover:rotate-90 transition-transform duration-500"
             />
-            <span className="font-medium">Settings</span>
+            <span className="font-semibold text-base">Settings</span>
           </button>
         </div>
       </div>
@@ -506,18 +502,15 @@ export const NotesList: React.FC<NotesListProps> = ({
         onImportFolders={handleImportFolders}
       />
 
-      {/* Folder Creation Dialog */}
+      {/* Folder Creation Dialog with Liquid Glass */}
       {showFolderDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div
-            className="rounded-lg p-6 w-96 max-w-md mx-4 border"
-            style={{
-              backgroundColor: "var(--bg-card)",
-              borderColor: "var(--border)",
-            }}
-          >
+        <div
+          className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 fade-in"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
+        >
+          <div className="liquid-glass-modal p-8 w-96 max-w-md mx-4">
             <h3
-              className="text-lg font-semibold mb-4"
+              className="text-xl font-bold mb-6"
               style={{ color: "var(--text-primary)" }}
             >
               Create New Folder
@@ -526,8 +519,8 @@ export const NotesList: React.FC<NotesListProps> = ({
               type="text"
               value={folderName}
               onChange={(e) => setFolderName(e.target.value)}
-              placeholder="Folder name"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent"
+              placeholder="Enter folder name..."
+              className="modern-input w-full px-4 py-3 mb-6"
               style={{
                 backgroundColor: "var(--input-bg)",
                 borderColor: "var(--border)",
@@ -542,18 +535,21 @@ export const NotesList: React.FC<NotesListProps> = ({
                 }
               }}
             />
-            <div className="flex justify-end space-x-3 mt-4">
+            <div className="flex justify-end space-x-3">
               <button
                 onClick={handleCancelCreateFolder}
-                className="px-4 py-2 transition-colors duration-200"
-                style={{ color: "var(--text-secondary)" }}
+                className="modern-btn px-6 py-2.5 rounded-lg transition-all duration-200 font-medium"
+                style={{
+                  color: "var(--text-secondary)",
+                  backgroundColor: "var(--input-bg)",
+                }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmCreateFolder}
                 disabled={!folderName.trim()}
-                className="px-4 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                className="modern-btn px-6 py-2.5 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold"
                 style={{ backgroundColor: "var(--accent)" }}
               >
                 Create

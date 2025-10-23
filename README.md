@@ -1,124 +1,246 @@
 
-# Notes App - Desktop
+# 🗒️ Notes App - Modern Desktop Application
 
-A modern, cross-platform notes application built with React, TypeScript, Vite, Electron, and Firebase Authentication (Google Sign-In and Email/Password).
+A beautiful, modern cross-platform notes application built with React, TypeScript, Vite, Electron, and Firebase Authentication. Features a sophisticated UI with liquid glass effects, context menus, and professional text editing capabilities.
 
-## Features
+## ✨ Features
 
-- Modern React + TypeScript frontend
-- Cross-platform desktop app (Electron)
-- Responsive design (Tailwind CSS)
-- Dark/Light theme support
-- Folder organization for notes
-- Search, keyboard shortcuts, auto-save
-- Export notes as PDF/TXT
-- Settings panel for customization
-- **Authentication:**
-  - Google Sign-In (OAuth)
-  - Email/Password login & registration
-  - Password reset
-  - Persistent login
+### 📝 **Core Functionality**
+- **Rich Text Editor** with formatting tools (bold, italic, underline, highlight)
+- **Folder Organization** for structured note management
+- **Search & Filter** with real-time results
+- **Auto-save** with customizable intervals
+- **Export Options** (PDF, TXT, JSON)
+- **Keyboard Shortcuts** for power users
 
-## Getting Started
+### 🔐 **Authentication**
+- **Google Sign-In** (OAuth)
+- **Email/Password** login & registration
+- **Password Reset** functionality
+- **Persistent Login** sessions
+
+### 🎨 **Modern UI Design**
+- **macOS Sequoia Liquid Glass** effects with vibrant transparency
+- **Dynamic Blur** and glass morphism
+- **Black & Grey Theme** with colorful accent buttons
+- **Smooth Animations** and transitions
+- **Dark/Light Mode** support
+- **Responsive Design** for all screen sizes
+
+### 🖱️ **Context Menu (MS Word-style)**
+- **Right-click** on selected text for instant formatting
+- **Text Operations**: Copy, Cut, Paste, Delete
+- **Formatting Tools**: Bold, Italic, Underline, Highlight
+- **Smart Detection**: Menu adapts based on text selection
+- **Keyboard Shortcuts** displayed for each action
+
+### ⚙️ **Advanced Settings**
+- **Theme Customization** (Light/Dark)
+- **Editor Preferences** (Font size, family, line height)
+- **Auto-save Configuration**
+- **Keyboard Shortcuts** customization
+- **Export Preferences**
+
+## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js v18+
-- npm
-- Firebase project (see below)
+- npm or yarn
+- Firebase project (for authentication)
 
 ### Installation & Development
 ```bash
+# Clone the repository
+git clone https://github.com/arsh342/Notes-App.git
+cd Notes-App
+
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
 ```
-This will start both the Vite dev server and Electron app together.
 
-### Build
+This starts both the Vite dev server and Electron app.
+
+### Build for Production
 ```bash
 npm run build
 ```
 
-## Authentication Setup (Firebase & Google Sign-In)
+## 🔧 Firebase & Authentication Setup
 
 ### 1. Create Firebase Project
-- Go to [Firebase Console](https://console.firebase.google.com/)
-- Create a new project
-- Enable Authentication > Sign-in method > Google & Email/Password
-- Add your app's domain to authorized domains
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project
+3. Enable Authentication → Sign-in methods → Google & Email/Password
+4. Add your domain to authorized domains
 
-### 2. Google OAuth Credentials
-- Go to [Google Cloud Console](https://console.cloud.google.com/)
-- Create OAuth 2.0 Client IDs:
-  - Web application (for Firebase)
-  - Desktop application (for Electron)
-- Add `http://localhost:5173` as an authorized redirect URI
+### 2. Google OAuth Setup
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create OAuth 2.0 Client IDs:
+   - **Web application** (for Firebase)
+   - **Desktop application** (for Electron)
+3. Add `http://localhost:5173` as authorized redirect URI
 
-### 3. Environment Variables
-- Copy `.env.example` to `.env`
-- Fill in your Firebase and Google OAuth credentials:
-  ```env
-  VITE_FIREBASE_API_KEY=your_firebase_api_key
-  VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-  VITE_FIREBASE_PROJECT_ID=your_project_id
-  VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-  VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-  VITE_FIREBASE_APP_ID=your_app_id
-  GOOGLE_CLIENT_ID=your_desktop_client_id.apps.googleusercontent.com
-  GOOGLE_CLIENT_SECRET=your_desktop_client_secret
-  ```
+### 3. Environment Configuration
+Copy `.env.example` to `.env` and fill in your credentials:
 
-### 4. Electron OAuth Setup
-- Update `electron/main.ts` with your Google OAuth config
-- Ensure redirect URI matches your Google Cloud settings
-
-### 5. Usage
-- Click "Sign in with Google" or use email/password in the app
-- Authentication state is persistent and available in settings
-- Password reset available via email
-
-## Project Structure
-```
-├── src/                 # React app source
-├── electron/            # Electron main & preload scripts
-├── dist/                # Built React app
-├── dist-electron/       # Built Electron files
-└── release/             # Distributable packages
+```env
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+GOOGLE_CLIENT_ID=your_desktop_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_desktop_client_secret
 ```
 
-## Security Notes
-- Never commit your `.env` file with real credentials
-- Use environment variables for secrets
-- Desktop OAuth client is different from web client
+## 🎨 UI Design Features
 
-## Technologies Used
-- React 18, TypeScript, Vite, Tailwind CSS
-- Electron
-- Firebase Authentication
-- Lucide React icons
+### **Liquid Glass Effects**
+- **Semi-transparent backgrounds** with backdrop blur
+- **Vibrancy overlays** for depth
+- **Dynamic saturation** and brightness adjustments
+- **Smooth material transitions**
 
-## Keyboard Shortcuts
+### **Modern Components**
+- **20px border radius** buttons for pill-like appearance
+- **Gradient backgrounds** and shadow effects
+- **Hover animations** with scale transformations
+- **Icon rotations** and smooth transitions
+
+### **Color Scheme**
+- **Light Mode**: Clean grays with vibrant accent colors
+- **Dark Mode**: Deep blacks with bright accents
+- **Colorful Buttons**: Blue primary, green success, red danger
+- **Smart Contrasts** for accessibility
+
+### **Animations & Transitions**
+- **Fade-in** effects for new elements
+- **Slide-in** animations for sidebar
+- **Pulse** effects for loading states
+- **Smooth scaling** on hover
+
+## ⌨️ Keyboard Shortcuts
+
+### **File Operations**
 - `Ctrl/Cmd + N` - New note
 - `Ctrl/Cmd + Shift + N` - New folder
 - `Ctrl/Cmd + S` - Save note
+- `Ctrl/Cmd + Shift + B` - Toggle sidebar
+
+### **Text Formatting**
+- `Ctrl/Cmd + B` - Bold
+- `Ctrl/Cmd + I` - Italic
+- `Ctrl/Cmd + U` - Underline
+- `Ctrl/Cmd + F` - Find in notes
+
+### **Export & App**
 - `Ctrl/Cmd + E` - Export as PDF
 - `Ctrl/Cmd + Shift + E` - Export as TXT
 - `Ctrl/Cmd + Q` - Quit app
 
-## Settings & Export
-- Theme: Light/Dark
-- Auto-save: Enable/disable, set interval
-- Export: PDF/TXT/JSON
+## 🖱️ Context Menu Usage
 
-## Authentication Components
-- `src/hooks/useAuth.ts` - Main authentication hook
-- `src/components/LoginScreen.tsx` - Login/signup modal
-- `src/components/AuthStatus.tsx` - Auth status display
-- `src/config/firebase-config.ts` - Firebase setup
+### **How to Use**
+1. **Select text** in the note editor
+2. **Right-click** to open context menu
+3. **Choose action** from the menu
+4. **Menu closes** automatically
 
-## Troubleshooting
-- Invalid redirect URI: Check Google Cloud OAuth settings
-- Invalid client ID: Use desktop client ID for Electron
-- Firebase errors: Check config and enabled providers
+### **Available Actions**
+- **Copy/Cut/Paste** - Standard clipboard operations
+- **Bold/Italic/Underline** - Quick formatting
+- **Highlight** - Add yellow background
+- **Delete** - Remove selected text
 
-## License
-MIT
+## 📁 Project Structure
+
+```
+Notes-App/
+├── src/                          # React app source
+│   ├── components/              # UI components
+│   │   ├── ContextMenu.tsx     # Right-click context menu
+│   │   ├── NoteEditor.tsx      # Rich text editor
+│   │   ├── NotesList.tsx       # Notes sidebar
+│   │   └── LoginScreen.tsx     # Authentication
+│   ├── contexts/               # React contexts
+│   ├── hooks/                  # Custom hooks
+│   ├── types/                  # TypeScript types
+│   └── utils/                  # Utility functions
+├── electron/                    # Electron main process
+├── dist/                       # Built React app
+├── dist-electron/              # Built Electron files
+└── public/                     # Static assets
+```
+
+## 🔧 Technologies Used
+
+### **Frontend**
+- **React 18** with TypeScript
+- **Vite** for fast builds
+- **Tailwind CSS** for styling
+- **Lucide React** for icons
+
+### **Desktop**
+- **Electron** for cross-platform desktop app
+- **Concurrently** for running dev processes
+
+### **Authentication**
+- **Firebase Authentication**
+- **Google OAuth 2.0**
+
+### **Styling**
+- **CSS Custom Properties** for theming
+- **Backdrop-filter** for glass effects
+- **CSS Animations** for smooth transitions
+
+## 🛡️ Security Features
+
+- **Environment variables** for sensitive data
+- **Firebase security rules** for authentication
+- **Content Security Policy** for Electron
+- **OAuth 2.0** secure authentication flow
+
+## 🎯 Performance Optimizations
+
+- **Lazy loading** of components
+- **Debounced search** for performance
+- **Efficient re-renders** with React hooks
+- **Auto-save throttling** to prevent spam
+
+## 🔍 Troubleshooting
+
+### **Authentication Issues**
+- Check Firebase configuration in `.env`
+- Verify Google OAuth client IDs
+- Ensure authorized domains are set
+
+### **UI Issues**
+- Clear browser cache and restart
+- Check for console errors
+- Verify all dependencies are installed
+
+### **Build Issues**
+- Delete `node_modules` and reinstall
+- Check Node.js version compatibility
+- Verify environment variables
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit changes (`git commit -am 'Add new feature'`)
+4. Push to branch (`git push origin feature/new-feature`)
+5. Create a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Built with ❤️ using modern web technologies for a beautiful, productive note-taking experience.**

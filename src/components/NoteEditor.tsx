@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Note } from "../types/Note";
 import { useSettings } from "../contexts/SettingsContext";
+import { ContextMenu } from "./ContextMenu";
 
 interface NoteEditorProps {
   note: Note | null;
@@ -54,6 +55,15 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   const [totalMatches, setTotalMatches] = useState(0);
   const [matches, setMatches] = useState<Element[]>([]);
   const [lineCount, setLineCount] = useState(1);
+
+  // Context menu state
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [selectedText, setSelectedText] = useState("");
+  const [hasTextSelected, setHasTextSelected] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -602,6 +612,114 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
       return false;
     }
   };
+
+  // Context menu functionality
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    const selection = window.getSelection();
+    const text = selection?.toString() || "";
+
+    setSelectedText(text);
+    setHasTextSelected(text.length > 0);
+    setContextMenuPosition({ x: e.clientX, y: e.clientY });
+    setShowContextMenu(true);
+  };
+
+  const handleCloseContextMenu = () => {
+    setShowContextMenu(false);
+  };
+
+  const handleCopyText = async () => {
+    if (selectedText) {
+      try {
+        await navigator.clipboard.writeText(selectedText);
+        handleCloseContextMenu();
+      } catch (err) {
+        console.error("Failed to copy text: ", err);
+      }
+    }
+  };
+
+  const handleCutText = async () => {
+    if (selectedText) {
+      try {
+        await navigator.clipboard.writeText(selectedText);
+        document.execCommand("delete");
+        handleContentChange();
+        handleCloseContextMenu();
+      } catch (err) {
+        console.error("Failed to cut text: ", err);
+      }
+    }
+  };
+
+  const handlePasteText = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.execCommand("insertText", false, text);
+      handleContentChange();
+      handleCloseContextMenu();
+    } catch (err) {
+      console.error("Failed to paste text: ", err);
+    }
+  };
+
+  const handleContextFormat = (format: string) => {
+    if (hasTextSelected) {
+      switch (format) {
+        case "bold":
+          document.execCommand("bold", false);
+          break;
+        case "italic":
+          document.execCommand("italic", false);
+          break;
+        case "underline":
+          document.execCommand("underline", false);
+          break;
+        case "highlight":
+          document.execCommand("hiliteColor", false, "#ffff00");
+          break;
+        default:
+          break;
+      }
+      handleContentChange();
+    }
+    handleCloseContextMenu();
+  };
+
+  const handleDeleteSelectedText = () => {
+    if (hasTextSelected) {
+      document.execCommand("delete");
+      handleContentChange();
+    }
+    handleCloseContextMenu();
+  };
+
+  // Close context menu on click outside or scroll
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (showContextMenu) {
+        handleCloseContextMenu();
+      }
+    };
+
+    const handleScroll = () => {
+      if (showContextMenu) {
+        handleCloseContextMenu();
+      }
+    };
+
+    if (showContextMenu) {
+      document.addEventListener("click", handleClickOutside);
+      document.addEventListener("scroll", handleScroll, true);
+
+      return () => {
+        document.removeEventListener("click", handleClickOutside);
+        document.removeEventListener("scroll", handleScroll, true);
+      };
+    }
+  }, [showContextMenu]);
 
   const formatText = (command: string, value?: string) => {
     // Only allow formatting if we have a note and the content editor exists
@@ -1810,6 +1928,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             ref={contentRef}
             contentEditable
             onInput={handleContentChange}
+            onContextMenu={handleContextMenu}
             onKeyDown={(e) => {
               // Handle Tab key for indentation
               if (e.key === "Tab" && !e.shiftKey) {
@@ -1939,6 +2058,19 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           )}
         </div>
       </div>
+
+      {/* Context Menu */}
+      <ContextMenu
+        show={showContextMenu}
+        position={contextMenuPosition}
+        hasTextSelected={hasTextSelected}
+        onClose={handleCloseContextMenu}
+        onCopy={handleCopyText}
+        onCut={handleCutText}
+        onPaste={handlePasteText}
+        onFormat={handleContextFormat}
+        onDelete={handleDeleteSelectedText}
+      />
     </div>
   );
 };

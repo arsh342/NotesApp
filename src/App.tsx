@@ -217,17 +217,20 @@ function App() {
   if (loading) {
     return (
       <div
-        className="flex items-center justify-center h-screen"
+        className="flex items-center justify-center h-screen fade-in"
         style={{ backgroundColor: "var(--bg-primary)" }}
       >
-        <div className="text-center">
-          {/* Animated logo/icon */}
+        <div className="text-center fade-in">
+          {/* Animated logo/icon with modern styling */}
           <div
-            className="w-16 h-16 mx-auto mb-6 rounded-xl flex items-center justify-center animate-pulse"
-            style={{ backgroundColor: "var(--accent)" }}
+            className="w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center pulse shadow-lg"
+            style={{
+              backgroundColor: "var(--accent)",
+              boxShadow: "0 10px 40px var(--shadow-lg)",
+            }}
           >
             <svg
-              className="w-8 h-8 text-white"
+              className="w-10 h-10 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -236,7 +239,7 @@ function App() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
+                strokeWidth={2.5}
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
               />
             </svg>
@@ -244,34 +247,37 @@ function App() {
 
           {/* Loading text */}
           <h2
-            className="text-xl font-semibold mb-2"
+            className="text-2xl font-bold mb-3"
             style={{ color: "var(--text-primary)" }}
           >
             Loading Notes
           </h2>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          <p
+            className="text-base mb-6"
+            style={{ color: "var(--text-secondary)" }}
+          >
             Authenticating and setting up your workspace...
           </p>
 
           {/* Loading animation */}
-          <div className="flex justify-center mt-4">
-            <div className="flex space-x-1">
+          <div className="flex justify-center">
+            <div className="flex space-x-2">
               <div
-                className="w-2 h-2 rounded-full animate-bounce"
+                className="w-3 h-3 rounded-full animate-bounce"
                 style={{
                   backgroundColor: "var(--accent)",
                   animationDelay: "0ms",
                 }}
               ></div>
               <div
-                className="w-2 h-2 rounded-full animate-bounce"
+                className="w-3 h-3 rounded-full animate-bounce"
                 style={{
                   backgroundColor: "var(--accent)",
                   animationDelay: "150ms",
                 }}
               ></div>
               <div
-                className="w-2 h-2 rounded-full animate-bounce"
+                className="w-3 h-3 rounded-full animate-bounce"
                 style={{
                   backgroundColor: "var(--accent)",
                   animationDelay: "300ms",
@@ -296,15 +302,20 @@ function App() {
               path="/"
               element={
                 <RequireAuth user={user}>
-                  <div className="h-screen bg-gray-100 dark:bg-black flex overflow-hidden">
+                  <div
+                    className="h-screen flex overflow-hidden fade-in"
+                    style={{ background: "var(--bg-primary)" }}
+                  >
                     <div className="flex flex-col w-full relative">
                       <div className="flex flex-1 h-full">
-                        {/* Resizable sidebar */}
+                        {/* Resizable sidebar with liquid glass effect */}
                         {isSidebarVisible && (
                           <>
                             <div
-                              className="bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-700 flex flex-col h-full relative"
-                              style={{ width: `${sidebarWidth}px` }}
+                              className="flex flex-col h-full relative slide-in-left backdrop-blur-xl"
+                              style={{
+                                width: `${sidebarWidth}px`,
+                              }}
                             >
                               <NotesList
                                 notes={notes}
@@ -327,21 +338,34 @@ function App() {
                               />
                             </div>
 
-                            {/* Resize handle */}
+                            {/* Resize handle with liquid glass effect */}
                             <div
-                              className="w-1 bg-gray-200 dark:bg-zinc-700 hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-colors duration-200 relative"
+                              className="w-1 cursor-col-resize transition-all duration-300 relative group"
+                              style={{
+                                backgroundColor: "var(--border)",
+                                boxShadow: "0 0 8px rgba(0, 0, 0, 0.05)",
+                              }}
                               onMouseDown={(e) => {
                                 e.preventDefault();
                                 setIsResizing(true);
                               }}
                             >
-                              <div className="absolute inset-0 hover:bg-blue-500 dark:hover:bg-blue-400 opacity-0 hover:opacity-50 transition-opacity duration-200" />
+                              <div
+                                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                                style={{
+                                  backgroundColor: "var(--accent)",
+                                  boxShadow: "0 0 12px var(--accent)",
+                                }}
+                              />
                             </div>
                           </>
                         )}
 
-                        {/* Main content area */}
-                        <div className="flex-1 h-full overflow-auto">
+                        {/* Main content area with liquid glass styling */}
+                        <div
+                          className="flex-1 h-full overflow-auto fade-in"
+                          style={{ background: "var(--bg-primary)" }}
+                        >
                           <NoteEditor
                             note={selectedNote}
                             onSave={updateNote}

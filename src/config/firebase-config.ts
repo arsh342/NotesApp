@@ -1,16 +1,16 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { 
-  getAuth, 
-  signInWithCredential, 
+import {
+  getAuth,
+  signInWithCredential,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
   updateProfile,
-  onAuthStateChanged
+  onAuthStateChanged,
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -26,25 +26,40 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Check if Firebase config is complete
+const isFirebaseConfigured =
+  firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId;
 
-export { 
-  auth, 
+// Initialize Firebase only if configured
+let app;
+let analytics;
+let auth;
+let db;
+
+if (isFirebaseConfigured) {
+  app = initializeApp(firebaseConfig);
+  analytics = getAnalytics(app);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} else {
+  console.warn(
+    "Firebase not configured. Cloud sync features will be disabled. Add a .env file with Firebase configuration to enable."
+  );
+}
+
+export {
+  auth,
   db,
-  signInWithCredential, 
-  GoogleAuthProvider, 
+  signInWithCredential,
+  GoogleAuthProvider,
   analytics,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
   updateProfile,
-  onAuthStateChanged
+  onAuthStateChanged,
 };
