@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -15,33 +15,91 @@ import { useNotes } from "./hooks/useNotes";
 import { useAuth } from "./hooks/useAuth";
 import { Note } from "./types/Note";
 import SettingsPage from "./pages/SettingsPage";
+import { auth } from "./config/firebase-config";
 
-function RequireAuth({ user, children }: { user: any; children: JSX.Element }) {
+function RequireAuth({
+  user,
+  children,
+  authAvailable,
+}: {
+  user: any;
+  children: JSX.Element;
+  authAvailable: boolean;
+}) {
   const location = useLocation();
+
+  // If auth is not available (Firebase not configured), allow access without authentication
+  if (!authAvailable) {
+    return children;
+  }
+
+  // If auth is available but user is not logged in, redirect to login
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
   return children;
 }
 
 function App() {
-  const {
-    notes,
-    folders,
-    selectedNote,
-    selectedFolderId,
-    setSelectedNote,
-    setSelectedFolderId,
-    createNote,
-    updateNote,
-    deleteNote,
-    createFolder,
-    updateFolder,
-    deleteFolder,
-    toggleFolder,
-  } = useNotes();
+  console.log("App component mounting...");
 
-  const { user, loading } = useAuth();
+  // Add try-catch around hooks to prevent white screen
+  let notes, folders, selectedNote, selectedFolderId;
+  let setSelectedNote, setSelectedFolderId, createNote, updateNote, deleteNote;
+  let createFolder, updateFolder, deleteFolder, toggleFolder;
+  let user, loading;
+  let authAvailable = false;
+
+  try {
+    const notesHook = useNotes();
+    notes = notesHook.notes;
+    folders = notesHook.folders;
+    selectedNote = notesHook.selectedNote;
+    selectedFolderId = notesHook.selectedFolderId;
+    setSelectedNote = notesHook.setSelectedNote;
+    setSelectedFolderId = notesHook.setSelectedFolderId;
+    createNote = notesHook.createNote;
+    updateNote = notesHook.updateNote;
+    deleteNote = notesHook.deleteNote;
+    createFolder = notesHook.createFolder;
+    updateFolder = notesHook.updateFolder;
+    deleteFolder = notesHook.deleteFolder;
+    toggleFolder = notesHook.toggleFolder;
+
+    const authHook = useAuth();
+    user = authHook.user;
+    loading = authHook.loading;
+
+    // Check if Firebase auth is available
+    authAvailable = !!auth;
+
+    console.log("App state:", { user: !!user, loading, authAvailable });
+  } catch (error) {
+    console.error("Error in App hooks:", error);
+    // Show error message instead of white screen
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Application Error
+          </h1>
+          <p className="text-gray-600 mb-4">
+            Failed to initialize the application.
+          </p>
+          <pre className="text-xs bg-gray-100 p-4 rounded overflow-auto">
+            {error instanceof Error ? error.message : String(error)}
+          </pre>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Reload
+          </button>
+        </div>
+      </div>
+    );
+  }
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentSearchTerm, setCurrentSearchTerm] = useState<
@@ -296,12 +354,22 @@ function App() {
           <Routes>
             <Route
               path="/login"
-              element={user ? <Navigate to="/" replace /> : <LoginScreen />}
+              element={
+                authAvailable ? (
+                  user ? (
+                    <Navigate to="/" replace />
+                  ) : (
+                    <LoginScreen />
+                  )
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
             />
             <Route
               path="/"
               element={
-                <RequireAuth user={user}>
+                <RequireAuth user={user} authAvailable={authAvailable}>
                   <div
                     className="h-screen flex overflow-hidden fade-in"
                     style={{ background: "var(--bg-primary)" }}
@@ -381,7 +449,7 @@ function App() {
             <Route
               path="/settings"
               element={
-                <RequireAuth user={user}>
+                <RequireAuth user={user} authAvailable={authAvailable}>
                   <SettingsPage />
                 </RequireAuth>
               }

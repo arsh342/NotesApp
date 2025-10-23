@@ -35,6 +35,12 @@ export const useAuth = (): UseAuthReturn => {
 
   // Listen to auth state changes
   useEffect(() => {
+    // If Firebase is not configured, just set loading to false
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false); // Auth state determined, stop loading
@@ -48,6 +54,13 @@ export const useAuth = (): UseAuthReturn => {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
+    if (!auth) {
+      setError(
+        "Authentication service not available. Please check your Firebase configuration."
+      );
+      return;
+    }
+
     if (!window.electronAPI) {
       setError("Electron API not available");
       return;
@@ -82,6 +95,13 @@ export const useAuth = (): UseAuthReturn => {
 
   const signInWithEmail = useCallback(
     async (email: string, password: string) => {
+      if (!auth) {
+        setError(
+          "Authentication service not available. Please check your Firebase configuration."
+        );
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -114,6 +134,13 @@ export const useAuth = (): UseAuthReturn => {
 
   const signUpWithEmail = useCallback(
     async (email: string, password: string, displayName: string) => {
+      if (!auth) {
+        setError(
+          "Authentication service not available. Please check your Firebase configuration."
+        );
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -149,6 +176,13 @@ export const useAuth = (): UseAuthReturn => {
   );
 
   const resetPassword = useCallback(async (email: string) => {
+    if (!auth) {
+      setError(
+        "Authentication service not available. Please check your Firebase configuration."
+      );
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -169,6 +203,13 @@ export const useAuth = (): UseAuthReturn => {
   }, []);
 
   const signOut = useCallback(async () => {
+    if (!auth) {
+      setError(
+        "Authentication service not available. Please check your Firebase configuration."
+      );
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
