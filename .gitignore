@@ -33,3 +33,9 @@ release-final
 dist-electron
 out
 build
+
+# Testing
+coverage
+
+# Local History
+.history
